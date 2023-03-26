@@ -4,7 +4,7 @@
 
 /**
  * main - Entry point
- * by Joseph and Ciny
+ * by adil and ahlam
  *
  * Return: Always 0
  */
