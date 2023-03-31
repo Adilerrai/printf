@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <stdarg.h> // for va_list, va_start, va_arg, va_end
 #include <unistd.h> // for write
 
@@ -89,4 +90,64 @@ void print_buffer(char buffer[], int *buff_ind)
 		write(1, &buffer[0], *buff_ind);
 
 	*buff_ind = 0;
+=======
+#include <stdio.h>
+#include <stdarg.h>
+#include "main.h"
+int _printf(const char *format, ...)
+{
+    int printed_chars = 0;
+    va_list arglist;
+    va_start(arglist, format);
+
+    while (*format)
+    {
+        if (*format == '%')
+        {
+            format++; // Move past the '%'
+
+            switch (*format)
+            {
+                case 'c':
+                {
+                    char c = va_arg(arglist, int);
+                    putchar(c);
+                    printed_chars++;
+                    break;
+                }
+
+                case 's':
+                {
+                    char *s = va_arg(arglist, char *);
+                    fputs(s, stdout);
+                    printed_chars += strlen(s);
+                    break;
+                }
+
+                case '%':
+                {
+                    putchar('%');
+                    printed_chars++;
+                    break;
+                }
+
+                default:
+                {
+                    printf("Unknown conversion specifier: %%%c\n", *format);
+                    return -1;
+                }
+            }
+        }
+        else
+        {
+            putchar(*format);
+            printed_chars++;
+        }
+
+        format++; // Move to the next character
+    }
+
+    va_end(arglist);
+    return printed_chars;
+>>>>>>> 4bf6615c5ef884bd810416604cc787ba9fe084d2
 }
