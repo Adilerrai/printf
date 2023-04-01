@@ -1,55 +1,36 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <unistd.h>
 #include "main.h"
-int _putchar(char c)
-{
-    return write(1, &c, 1);
-}
+#include <stdarg.h>
 
+/**
+ * _printf - prints formatted output to stdout
+ * @format: the format string to print
+ * @...: variable arguments to print
+ *
+ * Return: the number of characters printed
+ */
 int _printf(const char *format, ...)
 {
-    va_list args;
-    int printed_chars = 0;
-    va_start(args, format);
+	int count = 0;
+	va_list args;
 
-    while (*format != '\0') {
-        if (*format == '%') {
-            format++;
-            switch (*format) {
-                case 'c': {
-                    char c = (char) va_arg(args, int);
-                    _putchar(c);
-                    printed_chars++;
-                    break;
-                }
-                case 's': {
-                    char *s = va_arg(args, char *);
-                    while (*s != '\0') {
-                        _putchar(*s);
-                        s++;
-                        printed_chars++;
-                    }
-                    break;
-                }
-                case '%': {
-                    _putchar('%');
-                    printed_chars++;
-                    break;
-                }
-                default:
-                    // unsupported conversion specifier
-                    break;
-            }
-        } else {
-            _putchar(*format);
-            printed_chars++;
-        }
-        format++;
-    }
-
-    va_end(args);
-    return printed_chars;
+	if (!format || (format[0] == '%' && !format[1]))
+		return (-1);
+	if (format[0] == '%' && format[1] == ' ' && !format[2])
+		return (-1);
+	va_start(args, format);
+	while (*format != '\0')
+	{
+		if (*format == '%')
+		{
+			format++;
+			count += handle_specifier(format, args);
+		}
+		else
+		{
+			count += _putchar(*format);
+		}
+		format++;
+	}
+	va_end(args);
+	return (count);
 }
-
