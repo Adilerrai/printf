@@ -1,92 +1,110 @@
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include "main.h"
-
-#define MAX_BUFFER_SIZE 1024
-
-void print_buffer(char buffer[], int *buff_ind) 
-	{
-	fwrite(buffer, sizeof(char), *buff_ind, stdout);
-			*buff_ind = 0;
-	}
-
-void print_integer(int value, char buffer[], int *buff_ind)
-	{
-		int i = 0;
-		char digits[20];
-		 if (value < 0) 
-	{
-		buffer[(*buff_ind)++] = '-';
-		value = -value;
-    }
-
-    do
-	{
-		digits[i++] = value % 10 + '0';
-		value /= 10;
-    } 
-	while (value > 0);
-
-    while (i > 0) 
-	
-	 buffer[(*buff_ind)++] = digits[--i];
-	}
-
-void print_string(const char *str, char buffer[], int *buff_ind) 
+/**
+ * _printf - Custom printf function that supports some conversion specifiers
+ *
+ * @format: A string that contains text and conversion specifiers
+ * @...: Zero or more arguments that correspond to the conversion specifiers
+ *
+ * Return: The number of characters printed (excluding the null byte used to end
+ * the output to strings) or a negative value if an error occurs.
+ */
+int _printf(const char *format, ...)
 {
-    while (*str != '\0')
-		buffer[(*buff_ind)++] = *str++;
-}
+    int chars_printed = 0;  // The number of characters printed so far
+    va_list args;           // A variable-length argument list
 
-int custom_printf(const char *format, ...) 
-{
-	va_list args;
-	va_start(args, format);
+    // Initialize the argument list to point to the first optional argument
+    va_start(args, format);
 
-char buffer[MAX_BUFFER_SIZE];
-int buff_ind = 0;
+    // Loop over the characters in the format string
+    while (*format != '\0')
+    {
+        // If the current character is not a percent sign, print it as is
+        if (*format != '%')
+        {
+            putchar(*format);
+            chars_printed++;
+        }
+        // Otherwise, process the next character as a conversion specifier
+        else
+        {
+            // Advance the format string pointer to the next character
+            format++;
 
-while (*format != '\0') 
-{
-if (*format != '%') 
-{
-buffer[buff_ind++] = *format++;
-if (buff_ind == MAX_BUFFER_SIZE) 
-print_buffer(buffer, &buff_ind); 
-} 
-else
-{
-format++;
-switch (*format) 
-{
-case 'd': 
-{
-int value = va_arg(args, int);
-print_integer(value, buffer, &buff_ind);
-break;
-}
-case 's':
-{
-const char *str = va_arg(args, const *char);
-print_string(str, buffer, &buff_ind);
-break;
-}
-default:
-buffer[buff_ind++] = *format;
-break;
-}
-format++;
-}
-}
-
-va_end(args);
-
-print_buffer(buffer, &buff_ind);
-
-return buff_ind;
-}
-
-int main() {
-custom_printf("Hello, %s! The answer is %d.\n", "world", 42);
-return 0;
-}
+            // Check if the next character is a valid conversion specifier
+            if (*format == 'c')
+            {
+                // Print the next character argument as a character
+                char c = (char) va_arg(args, int);
+                putchar(c);
+                chars_printed++;
+            }
+            else if (*format == 's')
+            {
+                // Print the next string argument
+                const char *s = va_arg(args, const char *);
+                while (*s != '\0')
+                {
+                    putchar(*s);
+                    s++;
+                    chars_printed++;
+                }
+            }
+            else if (*format == 'd' || *format == 'i')
+            {
+                // Print the next integer argument
+                int n = va_arg(args, int);
+                int sign = (n < 0) ? -1 : 1;
+                n *= sign;
+                int digit_count = 0;
+                int temp = n;
+                do {
+                    temp /= 10;
+                    digit_count++;
+                } while (temp > 0);
+                if (sign < 0)
+                {
+                    putchar('-');
+                    chars_printed++;
+                }
+                while (digit_count > 0)
+                {
+                    int divisor = 1;
+                    for (int i = 1; i < digit_count; i++)
+                        divisor *= 10;
+                    int digit = n / divisor;
+                    n %= divisor;
+                    putchar('0' + digit);
+                    chars_printed++;
+                    digit_count--;
+                }
+            }
+            else if (*format == 'u')
+            {
+                // Print the next unsigned integer argument
+                unsigned int n = va_arg(args, unsigned int);
+                unsigned int digit_count = 0;
+                unsigned int temp = n;
+                do {
+                    temp /= 10;
+                    digit_count++;
+                } while (temp > 0);
+                while (digit_count > 0)
+                {
+                    unsigned int divisor = 1;
+                    for (unsigned int i = 1; i < digit_count; i++)
+                        divisor *= 10;
+                    unsigned int digit = n / divisor;
+                    n %= divisor;
+                    putchar('0' + digit);
+                    chars_printed++;
+                    digit_count--;
+                }
+            }
+            else if (*format == 'o')
+            {
+                // Print the next unsigned integer argument as an octal number
+                unsigned int n = va_arg(args, unsigned int);
+                unsigned int digit_count = 
